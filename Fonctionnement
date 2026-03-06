@@ -1,0 +1,88 @@
+A) Démarrage du jeu
+  - Saisie du nom du personnage. 
+  - Charger obligatoirement deux fichiers au lancement : items.csv (inventaire initial) et monsters.csv (base de monstres). 
+  -  Afficher un résumé : nom, HP actuel + HP max, liste items (nom + quantité). 
+  
+B) Condition de fin + fins multiples
+  - Fin de partie quand victoires = 10. 
+  - Afficher une fin selon l’historique :
+  - Génocidaire = tous tués (0 épargné)
+  - Pacifiste = tous épargnés (0 tué)
+  - Neutre = mix 
+
+C) Menu principal (hors combat)
+  Le menu doit contenir exactement ces rubriques :
+  - Bestiaire
+  - Démarrer un combat
+  - Statistiques
+  - Items
+  - Quitter 
+  
+  Et ce que chaque sous-menu doit afficher :
+  - Bestiaire : tous les monstres des combats gagnés + (nom, catégorie, stats HPmax/ATK/DEF, résultat tué/épargné). 
+ 
+  
+  - Stats : nom joueur, HP actuel + max, nb tués, nb épargnés, nb victoires (0–10). 
+  
+  
+  - Items : inventaire (liste + quantités), description “soigne X HP”, possibilité d’utiliser un item hors combat. 
+
+  
+  - Démarrer combat : choisir un ennemi au hasard dans la liste chargée depuis monsters.csv. 
+
+D) Système de combat
+  Boucle tour par tour tant que les deux sont vivants. 
+ 
+  À chaque tour joueur, afficher : FIGHT / ACT / ITEM / MERCY. 
+  
+  Règles de dégâts (à écrire clairement dans ta spec) :
+  À chaque attaque, tirer un entier aléatoire : dégâts = rand(0, HPmax de la cible). 
+  
+  Si dégâts = 0 : raté. Sinon, HP diminue.
+  HP ne descend jamais sous 0.
+  Tirage refait à chaque attaque, aléatoire géré proprement (ex. <random>). 
+  
+  Effet des actions :
+  - FIGHT : si le monstre tombe à 0 HP → monstre tué, victoire +1. 
+
+  - ITEM : utiliser un item de l’inventaire → consomme le tour. 
+
+  - MERCY : possible si Mercy ≥ 100 → victoire +1, monstre épargné. 
+
+  Tour du monstre : s’il est vivant après l’action du joueur → il attaque. Si joueur à 0 HP → défaite immédiate. 
+  Projet
+  
+E) Système ACT + Mercy
+  Chaque monstre a une jauge Mercy (ex 0→100) + un objectif (mercyGoal recommandé 100). 
+ 
+  ACT : le joueur choisit une action parmi celles disponibles pour ce monstre :
+  Afficher un texte drôle/absurde (pré-défini)
+  Modifier Mercy (peut +, -, ou 0)
+  Mercy doit rester bornée entre 0 et mercyGoal 
+
+   
+
+  Catalogue ACT dans le code (map ou vector), pas dans le CSV :
+  min 8 actions
+  min 2 actions négatives 
+  
+F) Catégories de monstres (polymorphisme attendu)
+NORMAL → 2 ACT
+MINIBOSS → 3 ACT
+BOSS → 4 ACT 
+
+G) Parsing CSV (formats exacts + erreurs)
+  items.csv (séparateur recommandé ;) : nom;type;valeur;quantite
+  type peut se limiter à HEAL
+  valeur = HP rendus
+  quantité = stock initial 
+  
+  monsters.csv : categorie;nom;hp;atk;def;mercyGoal;act1;act2;act3;act4
+  NORMAL : act1, act2 (act3/act4 peuvent être -)
+  MINIBOSS : act1, act2, act3 (act4 peut être -)
+  BOSS : act1..act4
+  Les ids ACT doivent exister dans le catalogue (dans le code). 
+  Projet
+  Erreurs minimales obligatoires :
+  “fichier introuvable” → message + arrêt propre
+  “ligne mal formée” → ignorer la ligne OU arrêter avec message (au choix) 

@@ -1,0 +1,153 @@
+Character
+├── Player
+│   └── Inventory
+│       └── ItemStack
+│           └── Item
+└── Monster
+    ├── NormalMonster
+    ├── MiniBoss
+    └── Boss
+par héritage puis composition 
+
+Game
+├── Player
+├── Bestiary
+│   └── BestiaryEntry
+├── ActCatalog
+│   └── Act
+└── Monster
+par composition, aggrégation et association.
+
+Monster ----> ActCatalog
+
+
+                           <<abstract>>
+                       +-------------------+
+                       |     Character     |
+                       +-------------------+
+                       | - name : string   |
+                       | - hp : int        |
+                       | - maxHp : int     |
+                       | - atk : int       |
+                       | - def : int       |
+                       +-------------------+
+                       | + isAlive()       |
+                       | + takeDamage()    |
+                       | + heal()          |
+                       | + attack()        |
+                       +-------------------+
+                                ^
+                                |
+                +---------------+---------------+
+                |                               |
+                |                               |
+      +-------------------+         +--------------------------+
+      |      Player       |         |         Monster          |
+      +-------------------+         +--------------------------+
+      | - victories:int   |         | - category : Category    |
+      | - killCount:int   |         | - mercy : int            |
+      | - sparedCount:int |         | - mercyGoal : int        |
+      | - inventory       |         | - actIds : vector<string>|
+      +-------------------+         +--------------------------+
+      | + useItem()       |         | + applyMercy()           |
+      | + displayStats()  |         | + canBeSpared()          |
+      +-------------------+         | + getAvailableActs()     |
+                |                   +--------------------------+
+                |                                ^
+                |                                |
+                |               +----------------+----------------+
+                |               |                |                |
+                |               |                |                |
+                |      +----------------+ +---------------+ +---------------+
+                |      | NormalMonster  | |   MiniBoss    | |     Boss      |
+                |      +----------------+ +---------------+ +---------------+
+                |      | + getActLimit()| |+ getActLimit()| |+ getActLimit()|
+                |      |      = 2       | |      = 3      | |      = 4      |
+                |      +----------------+ +---------------+ +---------------+
+                |
+                |
+                v
+      +-------------------+
+      |     Inventory     |
+      +-------------------+
+      | - items : vector  |
+      +-------------------+
+      | + addItem()       |
+      | + useItem()       |
+      | + displayItems()  |
+      +-------------------+
+                |
+                v
+      +-------------------+
+      |     ItemStack     |
+      +-------------------+
+      | - item : Item     |
+      | - quantity : int  |
+      +-------------------+
+      | + addQuantity()   |
+      | + removeOne()     |
+      +-------------------+
+                |
+                v
+      +-------------------+
+      |       Item        |
+      +-------------------+
+      | - name : string   |
+      | - type : ItemType |
+      | - value : int     |
+      +-------------------+
+      | + applyEffect()   |
+      +-------------------+
+
+
+
+      +---------------------------------------------------+
+      |                       Game                        |
+      +---------------------------------------------------+
+      | - player : Player                                 |
+      | - bestiary : Bestiary                             |
+      | - actCatalog : ActCatalog                         |
+      | - monsterPool : vector<Monster*>                  |
+      +---------------------------------------------------+
+      | + start()                                         |
+      | + loadItems()                                     |
+      | + loadMonsters()                                  |
+      | + showMainMenu()                                  |
+      | + startRandomBattle()                             |
+      | + battle()                                        |
+      | + showEnding()                                    |
+      / + saveGame()
+      / + loadGame()
+      +---------------------------------------------------+
+             |                        |                    |
+             |                        |                    |
+             v                        v                    v
+
+   +-------------------+    +-------------------+    +-------------------+
+   |     Bestiary      |    |    ActCatalog     |    |      Monster      |
+   +-------------------+    +-------------------+    +-------------------+
+   | - entries: vector |    | - acts : map      |    | utilise les ids   |
+   +-------------------+    +-------------------+    | d'ACT du catalog  |
+   | + addEntry()      |    | + loadDefaultActs()|   +-------------------+
+   | + display()       |    | + getAct()         |
+   +-------------------+    +-------------------+
+             |                        |
+             v                        v
+
+   +-------------------+    +-------------------+
+   |   BestiaryEntry   |    |        Act        |
+   +-------------------+    +-------------------+
+   | - name : string   |    | - id : string     |
+   | - category        |    | - text : string   |
+   | - maxHp : int     |    | - mercyImpact:int |
+   | - atk : int       |    +-------------------+
+   | - def : int       |    | + getText()       |
+   | - result : string |    +-------------------+
+   +-------------------+
+
+
+CSV : 
+items.csv : nom;type;valeur;quantite
+monster.csv : categorie;nom;hp;atk;def;mercyGoal;act1;act2;act3;act4
+save.csv : NAME;HP;MAXHP;VICTORIES;KILLS;SPARED;ITEMS
+

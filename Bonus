@@ -1,0 +1,24 @@
+Système de sauvegarde / chargement
+      Sauvegarde dans un fichier :
+      nom
+      HP
+      victoires
+      kills/spares
+      inventaire
+      C’est très impressionnant pédagogiquement.
+
+
+
+Interface console stylée (facile + impressionnant)
+      Utiliser :
+      ASCII art
+      barres de vie graphiques
+      cadres stylés
+      couleurs ANSI
+      Exemple :
+      ╔════════════════════════╗
+      ║  JAGUAR SAUVAGE        ║
+      ║  HP: ████████░░░  45/70║
+      ║  Mercy: ███░░░░░  30%  ║
+      ╚════════════════════════╝
+      Ça prend peu de code, mais ça fait très pro.

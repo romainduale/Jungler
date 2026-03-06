@@ -7,4 +7,6 @@ Monstres : inspirer d’animaux
 Items : d’éléments de la jungle 
 Act : pareil 
 
+code classe .h pour déclarer .cpp pour écrire
+
 

@@ -1,6 +1,6 @@
-name;type;valeur;quantite\
-Mangue;HEAL;10;3\
-Baie;HEAL;10;3\
-EauDeSource;HEAL;25;2\
-HerbeRoyale;HEAL;50;1\
-TotemMaya;HEAL;100;1\
+name;type;valeur;quantite
+Mangue;HEAL;10;3
+Baie;HEAL;10;3
+EauDeSource;HEAL;25;2
+HerbeRoyale;HEAL;50;1
+TotemMaya;HEAL;100;1

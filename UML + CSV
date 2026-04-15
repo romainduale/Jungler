@@ -16,7 +16,7 @@ Game
 ├── ActCatalog
 │   └── Act
 └── Monster
-par composition, aggrégation et association.
+par composition, aggrégation.
 
 Monster ----> ActCatalog
 
@@ -25,16 +25,20 @@ Monster ----> ActCatalog
                        +-------------------+
                        |     Character     |
                        +-------------------+
-                       | - name : string   |
+                       | - nom : string    |
                        | - hp : int        |
                        | - maxHp : int     |
                        | - atk : int       |
                        | - def : int       |
                        +-------------------+
-                       | + isAlive()       |
-                       | + takeDamage()    |
-                       | + heal()          |
-                       | + attack()        |
+                       | + EstEnVie()      |
+                       | + SubirDegats()   |
+                       | + soigner()       |
+                       | + getNom()        |
+                       | + getHp()         |
+                       | + getMaxHp()      |
+                       | + getAtk()        |
+                       | + getDef()        |
                        +-------------------+
                                 ^
                                 |
@@ -44,14 +48,24 @@ Monster ----> ActCatalog
       +-------------------+         +--------------------------+
       |      Player       |         |         Monster          |
       +-------------------+         +--------------------------+
-      | - victories:int   |         | - category : Category    |
-      | - killCount:int   |         | - mercy : int            |
-      | - sparedCount:int |         | - mercyGoal : int        |
-      | - inventory       |         | - actIds : vector<string>|
+      | - n_victiore:int  |         | - category : Category    |
+      | - n_kill:int      |         | - mercy : int            |
+      | - n_epargne:int   |         | - mercy_goal : int       |
+      | - inventory:Inventory|      | - actIds : vector<string>|
       +-------------------+         +--------------------------+
-      | + useItem()       |         | + applyMercy()           |
-      | + displayStats()  |         | + canBeSpared()          |
+      | + add_kill()      |         | + modifier_mercy()       |
+      | + add_epargne()   |         | + est_epargne()          |
+      | + add_victoire()  |
+      | + useItem(int choix) |
+      | + stats()
+      | + getN_victoire() |
+      | + getN_kill()     |
+      | + getN_epargne()  |
+      | + getInventory()  |
       +-------------------+         | + getAvailableActs()     |
+                                    | + getCategory()          |
+                                    | + getMercy()             |
+                                    | + getMercyGoal()         |
                 |                   +--------------------------+
                 |                                ^
                 |                                |
@@ -61,9 +75,7 @@ Monster ----> ActCatalog
                 |      +----------------+ +---------------+ +---------------+
                 |      | NormalMonster  | |   MiniBoss    | |     Boss      |
                 |      +----------------+ +---------------+ +---------------+
-                |      | + getActLimit()| |+ getActLimit()| |+ getActLimit()|
-                |      |      = 2       | |      = 3      | |      = 4      |
-                |      +----------------+ +---------------+ +---------------+
+                |      
                 |
                 |
                 v
@@ -72,9 +84,11 @@ Monster ----> ActCatalog
       +-------------------+
       | - items : vector  |
       +-------------------+
-      | + addItem()       |
-      | + useItem()       |
-      | + displayItems()  |
+      | + ajouter_item()  |
+      | + utiliser_item() |
+      | + afficher_item() |
+      | + getItems()      |
+      | + estVide()       |
       +-------------------+
                 |
                 v
@@ -82,21 +96,25 @@ Monster ----> ActCatalog
       |     ItemStack     |
       +-------------------+
       | - item : Item     |
-      | - quantity : int  |
+      | - quantite : int  |
       +-------------------+
-      | + addQuantity()   |
-      | + removeOne()     |
+      | + ajouter_quantite()|
+      | + enlever_quantite()|
+      | + getQuantite()   |
+      | + getItem()       |
       +-------------------+
                 |
                 v
       +-------------------+
       |       Item        |
       +-------------------+
-      | - name : string   |
+      | - nom : string    |
       | - type : ItemType |
-      | - value : int     |
+      | - valeur : int    |
       +-------------------+
-      | + applyEffect()   |
+      | + getValeur()     |
+      | + getType()       |
+      | + getNom()        |
       +-------------------+
 
 
@@ -126,25 +144,35 @@ Monster ----> ActCatalog
    +-------------------+    +-------------------+    +-------------------+
    |     Bestiary      |    |    ActCatalog     |    |      Monster      |
    +-------------------+    +-------------------+    +-------------------+
-   | - entries: vector |    | - acts : map      |    | utilise les ids   |
+   | - bestiaire: vector |  | - acts : map      |    | utilise les ids   |
    +-------------------+    +-------------------+    | d'ACT du catalog  |
-   | + addEntry()      |    | + loadDefaultActs()|   +-------------------+
-   | + display()       |    | + getAct()         |
-   +-------------------+    +-------------------+
+   | + ajouter_monstre()|   | + addAct()        |    +-------------------+
+   | + afficher_bestiaire()|| + getAct()        |
+   | + getBestiaire()  |    | + getActs()       |
+   | + estVide()       |    +-------------------+
+   +-------------------+    
              |                        |
              v                        v
 
    +-------------------+    +-------------------+
    |   BestiaryEntry   |    |        Act        |
    +-------------------+    +-------------------+
-   | - name : string   |    | - id : string     |
+   | - nom : string    |    | - id : string     |
    | - category        |    | - text : string   |
    | - maxHp : int     |    | - mercyImpact:int |
    | - atk : int       |    +-------------------+
    | - def : int       |    | + getText()       |
-   | - result : string |    +-------------------+
+   |                   |    | + getId()         |
+   |                   |    | + getMercy_Impact() |
+   | - resultat : string |  +-------------------+
    +-------------------+
-
+   | + getNom()        |
+   | + getCategory()   |
+   | + getMaxHp()      |
+   | + getAtk()        |
+   | + getDef()        |
+   | + getResultat()   |
+   +-------------------+
 
 CSV : 
 items.csv : nom;type;valeur;quantite

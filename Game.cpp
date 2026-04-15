@@ -345,6 +345,7 @@ void Game::battle(Monster* monster) {
                     << "Le monstre n'est pas encore prêt à être épargné (Mercy : "
                     << monster->getMercy() << "/" << monster->getMercyGoal() << ")"
                     << UI::RESET << endl;
+                continue;   // FIX MERCY : on saute le tour du monstre (action ratée mais sans risque)
             }
         }
         else {

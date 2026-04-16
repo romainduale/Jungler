@@ -77,12 +77,12 @@ void Game::loadActs() {
     actCatalog.addAct(Act("COMPLIMENT", "Vous complimentez la fourrure soyeuse du monstre.", 25));
     actCatalog.addAct(Act("DANSE_TRIBALE", "Vous dansez comme un singe pour amuser le monstre.", 30));
     actCatalog.addAct(Act("OFFRIR_FRUIT", "Vous offrez une mangue juteuse au monstre.", 40));
-    actCatalog.addAct(Act("CHATOUILLER", "Vous chatouillez le monstre avec une feuille géante.", 15));
+    actCatalog.addAct(Act("CHATOUILLER", "Vous chatouillez le monstre avec une feuille geante.", 15));
     actCatalog.addAct(Act("INSULTER", "Vous insultez son odeur de jungle humide.", -20));
-    actCatalog.addAct(Act("MENACER", "Vous menacez de brûler les lianes autour de lui.", -10));
-    actCatalog.addAct(Act("CHANTER", "Vous chantez une mélodie apaisante de la jungle.", 20));
-    actCatalog.addAct(Act("RACONTER", "Vous racontez une légende absurde sur les totems mayas.", 35));
-    actCatalog.addAct(Act("CRIER", "Vous imitez un cri de jaguar enragé.", -15));
+    actCatalog.addAct(Act("MENACER", "Vous menacez de bruler les lianes autour de lui.", -10));
+    actCatalog.addAct(Act("CHANTER", "Vous chantez une melodie apaisante de la jungle.", 20));
+    actCatalog.addAct(Act("RACONTER", "Vous racontez une legende absurde sur les totems mayas.", 35));
+    actCatalog.addAct(Act("CRIER", "Vous imitez un cri de jaguar enrage.", -15));
     actCatalog.addAct(Act("CARESSER", "Vous caressez gentiment le monstre pour le calmer.", 10));
 }
 
@@ -91,7 +91,7 @@ void Game::loadItems() {
     if (_getcwd(cwd, sizeof(cwd)) != nullptr) {
         cout << "\n";
         UI::section("DEBUG - REPERTOIRE DE TRAVAIL", UI::BRIGHT_YELLOW);
-        cout << UI::YELLOW << "Répertoire de travail actuel : " << UI::RESET << cwd << endl;
+        cout << UI::YELLOW << "Repertoire de travail actuel : " << UI::RESET << cwd << endl;
         cout << UI::YELLOW << "Il cherche donc le fichier : " << UI::RESET << cwd << "/Items.csv" << endl;
         UI::smallLine(UI::BRIGHT_YELLOW);
         cout << endl;
@@ -127,11 +127,11 @@ void Game::loadItems() {
             itemsCharges++;
         }
         catch (...) {
-            cout << UI::BRIGHT_YELLOW << "Ligne " << ligneNumero << " ignorée." << UI::RESET << endl;
+            cout << UI::BRIGHT_YELLOW << "Ligne " << ligneNumero << " ignoree." << UI::RESET << endl;
         }
     }
     file.close();
-    cout << UI::BRIGHT_GREEN << itemsCharges << " items chargés avec succès depuis Items.csv !" << UI::RESET << endl;
+    cout << UI::BRIGHT_GREEN << itemsCharges << " items charges avec succes depuis Items.csv !" << UI::RESET << endl;
 }
 
 void Game::loadMonsters() {
@@ -154,7 +154,7 @@ void Game::loadMonsters() {
         while (getline(ss, token, ';')) tokens.push_back(token);
 
         if (tokens.size() < 6) {
-            cout << UI::BRIGHT_YELLOW << "Ligne " << ligneNumero << " ignorée (trop peu de colonnes)." << UI::RESET << endl;
+            cout << UI::BRIGHT_YELLOW << "Ligne " << ligneNumero << " ignoree (trop peu de colonnes)." << UI::RESET << endl;
             continue;
         }
 
@@ -182,11 +182,11 @@ void Game::loadMonsters() {
             monstresCharges++;
         }
         catch (...) {
-            cout << UI::BRIGHT_YELLOW << "Ligne " << ligneNumero << " ignorée." << UI::RESET << endl;
+            cout << UI::BRIGHT_YELLOW << "Ligne " << ligneNumero << " ignoree." << UI::RESET << endl;
         }
     }
     file.close();
-    cout << UI::BRIGHT_GREEN << monstresCharges << " monstres chargés avec succès depuis monsters.csv !" << UI::RESET << endl;
+    cout << UI::BRIGHT_GREEN << monstresCharges << " monstres charges avec succes depuis monsters.csv !" << UI::RESET << endl;
 }
 #pragma endregion
 
@@ -230,7 +230,7 @@ void Game::battle(Monster* monster) {
             }
             else {
                 monster->subirDegats(dmg);
-                cout << UI::RED << "Dégâts infligés : " << dmg << UI::RESET << endl;
+                cout << UI::RED << "Degats infliges : " << dmg << UI::RESET << endl;
             }
         }
         else if (action == 2) { // ACT
@@ -261,7 +261,7 @@ void Game::battle(Monster* monster) {
                     monster->modifier_mercy(mercyRandom);
                 }
                 else {
-                    cout << UI::YELLOW << "ACT non trouvée." << UI::RESET << endl;
+                    cout << UI::YELLOW << "ACT non trouvee." << UI::RESET << endl;
                 }
             }
         }
@@ -272,24 +272,24 @@ void Game::battle(Monster* monster) {
                 continue;
             }
             inv.afficher_item();
-            cout << UI::BOLD << "Numéro de l'item à utiliser : " << UI::RESET;
+            cout << UI::BOLD << "Numero de l'item a utiliser : " << UI::RESET;
             int idx;
             cin >> idx;
             player.useItem(idx);
         }
         else if (action == 4) { // MERCY
             if (monster->est_epargne()) {
-                cout << UI::BRIGHT_GREEN << "Vous épargnez le monstre avec succès !" << UI::RESET << endl;
+                cout << UI::BRIGHT_GREEN << "Vous epargnez le monstre avec succes !" << UI::RESET << endl;
                 player.add_epargne();
                 player.add_victoire();
                 BestiaryEntry entry(monster->getNom(), monster->getCategory(),
                     monster->getMaxHp(), monster->getAtk(),
-                    monster->getDef(), "épargné");
+                    monster->getDef(), "epargne");
                 bestiary.ajouter_monstre(entry);
                 return;
             }
             else {
-                cout << UI::YELLOW << "Le monstre n'est pas encore prêt à être épargné (Mercy : "
+                cout << UI::YELLOW << "Le monstre n'est pas encore pret a etre epargne (Mercy : "
                     << monster->getMercy() << "/" << monster->getMercyGoal() << ")" << UI::RESET << endl;
                 continue;
             }
@@ -305,7 +305,7 @@ void Game::battle(Monster* monster) {
             player.add_victoire();
             BestiaryEntry entry(monster->getNom(), monster->getCategory(),
                 monster->getMaxHp(), monster->getAtk(),
-                monster->getDef(), "tué");
+                monster->getDef(), "tue");
             bestiary.ajouter_monstre(entry);
             return;
         }
@@ -325,12 +325,12 @@ void Game::battle(Monster* monster) {
 
             if (dmg > 0) {
                 player.subirDegats(dmg);
-                cout << UI::BRIGHT_RED << "Dégâts reçus : " << dmg << UI::RESET << endl;
+                cout << UI::BRIGHT_RED << "Degats recus : " << dmg << UI::RESET << endl;
             }
         }
 
         if (!player.estEnVie()) {
-            cout << UI::BRIGHT_RED << "Vous avez été vaincu ! Défaite immédiate." << UI::RESET << endl;
+            cout << UI::BRIGHT_RED << "Vous avez ete vaincu ! Defaite immediate." << UI::RESET << endl;
             return;
         }
     }
@@ -360,7 +360,7 @@ void Game::startRandomBattle() {
 void Game::showBestiary() const {
     UI::section("BESTIAIRE", UI::BRIGHT_GREEN);
     if (bestiary.estVide()) {
-        cout << UI::YELLOW << "Aucun monstre découvert pour l'instant." << UI::RESET << endl;
+        cout << UI::YELLOW << "Aucun monstre decouvert pour l'instant." << UI::RESET << endl;
         return;
     }
     auto entries = bestiary.getBestiaire();
@@ -374,7 +374,7 @@ void Game::showBestiary() const {
         cout << " " << UI::RED << "HP max : " << UI::RESET << e.getMaxHp()
             << " | " << UI::YELLOW << "ATK : " << UI::RESET << e.getAtk()
             << " | " << UI::BLUE << "DEF : " << UI::RESET << e.getDef() << endl;
-        cout << " " << UI::GREEN << "Résultat : " << UI::RESET << e.getResultat() << endl << endl;
+        cout << " " << UI::GREEN << "Resultat : " << UI::RESET << e.getResultat() << endl << endl;
     }
 }
 
@@ -383,10 +383,10 @@ void Game::showStats() const {
     cout << UI::CYAN << "Nom : " << UI::RESET << player.getNom() << endl;
     cout << UI::GREEN << "HP : " << UI::RESET << player.getHp() << " / " << player.getMaxHp() << endl;
     cout << UI::RED << "Attaque : " << UI::RESET << player.getAtk() << endl;
-    cout << UI::BLUE << "Défense : " << UI::RESET << player.getDef() << endl;
+    cout << UI::BLUE << "Defense : " << UI::RESET << player.getDef() << endl;
     cout << UI::YELLOW << "Victoires : " << UI::RESET << player.getN_victoire() << " / 10" << endl;
-    cout << UI::BRIGHT_RED << "Tués : " << UI::RESET << player.getN_kill() << endl;
-    cout << UI::BRIGHT_GREEN << "Épargnés : " << UI::RESET << player.getN_epargne() << endl;
+    cout << UI::BRIGHT_RED << "Tues : " << UI::RESET << player.getN_kill() << endl;
+    cout << UI::BRIGHT_GREEN << "Epargnes : " << UI::RESET << player.getN_epargne() << endl;
 }
 
 void Game::showItems() {
@@ -398,7 +398,7 @@ void Game::showItems() {
     }
     inv.afficher_item();
     cout << "\n" << UI::GREEN << "Tous ces items soignent des HP." << UI::RESET << endl;
-    cout << UI::BOLD << "Numéro de l'item à utiliser (ou -1 pour retour) : " << UI::RESET;
+    cout << UI::BOLD << "Numero de l'item a utiliser (ou -1 pour retour) : " << UI::RESET;
     int choix;
     cin >> choix;
     if (choix >= 0) player.useItem(choix);
@@ -410,17 +410,17 @@ void Game::showEnding() const {
     int kills = player.getN_kill();
     int spared = player.getN_epargne();
     if (kills == 10) {
-        cout << UI::BRIGHT_RED << "FIN GÉNOCIDAIRE : Vous avez exterminé toute la jungle !" << UI::RESET << endl;
+        cout << UI::BRIGHT_RED << "FIN GENOCIDAIRE : Vous avez extermine toute la jungle !" << UI::RESET << endl;
     }
     else if (spared == 10) {
-        cout << UI::BRIGHT_GREEN << "FIN PACIFISTE : Vous avez apaisé la jungle avec ingéniosité !" << UI::RESET << endl;
+        cout << UI::BRIGHT_GREEN << "FIN PACIFISTE : Vous avez apaise la jungle avec ingeniosite !" << UI::RESET << endl;
     }
     else {
-        cout << UI::BRIGHT_YELLOW << "FIN NEUTRE : Un équilibre entre force et compassion." << UI::RESET << endl;
+        cout << UI::BRIGHT_YELLOW << "FIN NEUTRE : Un equilibre entre force et compassion." << UI::RESET << endl;
     }
-    cout << UI::RED << "Tués : " << kills << UI::RESET << endl;
-    cout << UI::GREEN << "Épargnés : " << spared << UI::RESET << endl;
-    cout << UI::BRIGHT_CYAN << "Merci d'avoir joué à JUNGLER !" << UI::RESET << endl;
+    cout << UI::RED << "Tues : " << kills << UI::RESET << endl;
+    cout << UI::GREEN << "Epargnes : " << spared << UI::RESET << endl;
+    cout << UI::BRIGHT_CYAN << "Merci d'avoir joue à JUNGLER !" << UI::RESET << endl;
 }
 #pragma endregion
 
@@ -429,7 +429,7 @@ void Game::showMainMenu() {
     cout << "\n";
     UI::section("MENU PRINCIPAL", UI::BRIGHT_GREEN);
     cout << UI::BRIGHT_CYAN << "1. " << UI::RESET << "Bestiaire" << endl;
-    cout << UI::BRIGHT_RED << "2. " << UI::RESET << "Démarrer un combat" << endl;
+    cout << UI::BRIGHT_RED << "2. " << UI::RESET << "Demarrer un combat" << endl;
     cout << UI::BRIGHT_BLUE << "3. " << UI::RESET << "Statistiques" << endl;
     cout << UI::BRIGHT_YELLOW << "4. " << UI::RESET << "Items" << endl;
     cout << UI::BRIGHT_MAGENTA << "5. " << UI::RESET << "Quitter" << endl;
@@ -440,7 +440,7 @@ void Game::showMainMenu() {
     case 1: showBestiary(); break;
     case 2:
         if (!player.estEnVie()) {
-            cout << UI::YELLOW << "Vous êtes à 0 HP ! Utilisez un item pour vous soigner avant de combattre." << UI::RESET << endl;
+            cout << UI::YELLOW << "Vous etes a 0 HP ! Utilisez un item pour vous soigner avant de combattre." << UI::RESET << endl;
         }
         else {
             startRandomBattle();

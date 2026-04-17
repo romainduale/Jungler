@@ -96,14 +96,12 @@ void Game::loadItems() {
         UI::smallLine(UI::BRIGHT_YELLOW);
         cout << endl;
     }
-
     ifstream file("Items.csv");
     if (!file.is_open()) {
         cout << UI::BRIGHT_RED << "ERREUR : Items.csv introuvable." << UI::RESET << endl;
         cout << UI::RED << "→ Mets le fichier Items.csv exactement dans le dossier ci-dessus !" << UI::RESET << endl;
         exit(1);
     }
-
     string line;
     int ligneNumero = 0;
     int itemsCharges = 0;
@@ -114,10 +112,8 @@ void Game::loadItems() {
         vector<string> tokens;
         string token;
         while (getline(ss, token, ';')) tokens.push_back(token);
-
         if (tokens.size() != 4) continue;
         if (tokens[0] == "name") continue;
-
         try {
             string nom = tokens[0];
             int valeur = stoi(tokens[2]);
@@ -140,24 +136,20 @@ void Game::loadMonsters() {
         cout << UI::BRIGHT_RED << "ERREUR : fichier monsters.csv introuvable. Arrêt du jeu." << UI::RESET << endl;
         exit(1);
     }
-
     string line;
     int ligneNumero = 0;
     int monstresCharges = 0;
     while (getline(file, line)) {
         ligneNumero++;
         if (line.empty() || line[0] == '#') continue;
-
         stringstream ss(line);
         vector<string> tokens;
         string token;
         while (getline(ss, token, ';')) tokens.push_back(token);
-
         if (tokens.size() < 6) {
             cout << UI::BRIGHT_YELLOW << "Ligne " << ligneNumero << " ignoree (trop peu de colonnes)." << UI::RESET << endl;
             continue;
         }
-
         try {
             string catStr = tokens[0];
             Category cat;
@@ -165,18 +157,15 @@ void Game::loadMonsters() {
             else if (catStr == "MINIBOSS") cat = MINIBOSS;
             else if (catStr == "BOSS") cat = BOSS;
             else continue;
-
             string nom = tokens[1];
             int hp = stoi(tokens[2]);
             int atk = stoi(tokens[3]);
             int def = stoi(tokens[4]);
             int mercyGoal = stoi(tokens[5]);
-
             vector<string> actIds;
             for (size_t i = 6; i < tokens.size() && i < 10; ++i) {
                 if (!tokens[i].empty() && tokens[i] != "-") actIds.push_back(tokens[i]);
             }
-
             Monster* m = new Monster(nom, hp, atk, def, cat, mercyGoal, actIds);
             monsterPool.push_back(m);
             monstresCharges++;
@@ -194,15 +183,12 @@ void Game::loadMonsters() {
 void Game::displayBattleStatus(Monster* monster) const {
     cout << "\n";
     UI::section("COMBAT CONTRE " + monster->getNom(), UI::BRIGHT_MAGENTA);
-
     cout << UI::RED << "HP Monstre : " << UI::RESET
         << UI::makeBar(monster->getHp(), monster->getMaxHp(), 10, UI::BRIGHT_RED)
         << " " << monster->getHp() << "/" << monster->getMaxHp() << endl;
-
     cout << UI::CYAN << "Mercy : " << UI::RESET
         << UI::makeBar(monster->getMercy(), monster->getMercyGoal(), 10, UI::BRIGHT_CYAN)
         << " " << monster->getMercy() << "/" << monster->getMercyGoal() << endl;
-
     cout << UI::GREEN << "Votre HP : " << UI::RESET
         << UI::makeBar(player.getHp(), player.getMaxHp(), 10, UI::BRIGHT_GREEN)
         << " " << player.getHp() << "/" << player.getMaxHp() << endl << endl;
@@ -210,15 +196,12 @@ void Game::displayBattleStatus(Monster* monster) const {
 
 void Game::battle(Monster* monster) {
     cout << UI::BRIGHT_MAGENTA << ">> Un combat commence contre " << monster->getNom() << " !" << UI::RESET << endl;
-
     while (player.estEnVie() && monster->estEnVie()) {
         displayBattleStatus(monster);
-
         cout << UI::BRIGHT_YELLOW << "+---------------------------------------------+" << UI::RESET << endl;
-        cout << UI::BRIGHT_YELLOW << "| 1. FIGHT  2. ACT  3. ITEM  4. MERCY |" << UI::RESET << endl;
+        cout << UI::BRIGHT_YELLOW << "| 1. FIGHT 2. ACT 3. ITEM 4. MERCY |" << UI::RESET << endl;
         cout << UI::BRIGHT_YELLOW << "+---------------------------------------------+" << UI::RESET << endl;
         cout << UI::BOLD << "Votre action : " << UI::RESET;
-
         int action;
         cin >> action;
 
@@ -243,7 +226,7 @@ void Game::battle(Monster* monster) {
             for (size_t i = 0; i < acts.size(); ++i) {
                 const Act* a = actCatalog.getAct(acts[i]);
                 if (a) {
-                    cout << UI::CYAN << i + 1 << ". " << a->getTexte() << UI::RESET << endl;  // ← impact caché
+                    cout << UI::CYAN << i + 1 << ". " << a->getTexte() << UI::RESET << endl;
                 }
                 else {
                     cout << UI::CYAN << i + 1 << ". " << acts[i] << UI::RESET << endl;
@@ -256,7 +239,6 @@ void Game::battle(Monster* monster) {
                 const Act* a = actCatalog.getAct(id);
                 if (a) {
                     cout << UI::BRIGHT_CYAN << a->getTexte() << UI::RESET << endl;
-                    // Mercy ALÉATOIRE entre -20 et +80
                     int mercyRandom = -20 + (rand() % 101);
                     monster->modifier_mercy(mercyRandom);
                 }
@@ -291,7 +273,26 @@ void Game::battle(Monster* monster) {
             else {
                 cout << UI::YELLOW << "Le monstre n'est pas encore pret a etre epargne (Mercy : "
                     << monster->getMercy() << "/" << monster->getMercyGoal() << ")" << UI::RESET << endl;
-                continue;
+
+                // === NOUVEAU : quand MERCY échoue, le monstre attaque avec les nouvelles probas ===
+                cout << UI::BRIGHT_MAGENTA << monster->getNom() << " attaque !" << UI::RESET << endl;
+                int dmg = 0;
+                int r = rand() % 100;
+                if (r < 5) {                                      // 5% : le monstre loupe complètement
+                    cout << UI::YELLOW << "Le monstre rate son attaque !" << UI::RESET << endl;
+                }
+                else if (r < 85) {                                // 80% : dégâts divisés par deux
+                    dmg = (rand() % 80 + 1) / 2;
+                    if (dmg == 0) dmg = 1;
+                }
+                else {                                            // 15% restant : dégâts normaux
+                    dmg = rand() % 80 + 1;
+                }
+                if (dmg > 0) {
+                    player.subirDegats(dmg);
+                    cout << UI::BRIGHT_RED << "Degats recus : " << dmg << UI::RESET << endl;
+                }
+                continue;   // on passe directement au prochain tour du joueur
             }
         }
         else {
@@ -310,19 +311,17 @@ void Game::battle(Monster* monster) {
             return;
         }
 
-        // ====================== TOUR DU MONSTRE ======================
+        // ====================== TOUR DU MONSTRE (pour les autres actions) ======================
         if (monster->estEnVie()) {
             cout << UI::BRIGHT_MAGENTA << monster->getNom() << " attaque !" << UI::RESET << endl;
-
             int dmg = 0;
-            if (rand() % 100 < 80) {           // 80% de chance
-                dmg = (rand() % 80 + 1) / 2;   // dégâts divisés par 2
-                if (dmg == 0) dmg = 1;         // minimum 1 dégât
+            if (rand() % 100 < 10) {
+                dmg = (rand() % 80 + 1);
+                if (dmg == 0) dmg = 1;
             }
             else {
                 cout << UI::YELLOW << "Le monstre rate son attaque !" << UI::RESET << endl;
             }
-
             if (dmg > 0) {
                 player.subirDegats(dmg);
                 cout << UI::BRIGHT_RED << "Degats recus : " << dmg << UI::RESET << endl;
@@ -343,15 +342,12 @@ void Game::startRandomBattle() {
     }
     size_t idx = rand() % monsterPool.size();
     Monster* monster = monsterPool[idx];
-
     monster->soigner(monster->getMaxHp());
     monster->modifier_mercy(-monster->getMercy());
-
     cout << "\n";
     cout << UI::BRIGHT_MAGENTA << "=====================================================" << UI::RESET << endl;
     cout << UI::BRIGHT_MAGENTA << " Un " << monster->getNom() << " surgit de la jungle !" << UI::RESET << endl;
     cout << UI::BRIGHT_MAGENTA << "=====================================================" << UI::RESET << endl;
-
     battle(monster);
 }
 #pragma endregion
@@ -428,8 +424,8 @@ void Game::showEnding() const {
 void Game::showMainMenu() {
     cout << "\n";
     UI::section("MENU PRINCIPAL", UI::BRIGHT_GREEN);
-    cout << UI::BRIGHT_CYAN << "1. " << UI::RESET << "Bestiaire" << endl;
-    cout << UI::BRIGHT_RED << "2. " << UI::RESET << "Demarrer un combat" << endl;
+    cout << UI::BRIGHT_RED << "1. " << UI::RESET << "Demarrer un combat" << endl;     // ← échangé
+    cout << UI::BRIGHT_CYAN << "2. " << UI::RESET << "Bestiaire" << endl;            // ← échangé
     cout << UI::BRIGHT_BLUE << "3. " << UI::RESET << "Statistiques" << endl;
     cout << UI::BRIGHT_YELLOW << "4. " << UI::RESET << "Items" << endl;
     cout << UI::BRIGHT_MAGENTA << "5. " << UI::RESET << "Quitter" << endl;
@@ -437,8 +433,7 @@ void Game::showMainMenu() {
     int choix;
     cin >> choix;
     switch (choix) {
-    case 1: showBestiary(); break;
-    case 2:
+    case 1:                                                                       // ← maintenant combat
         if (!player.estEnVie()) {
             cout << UI::YELLOW << "Vous etes a 0 HP ! Utilisez un item pour vous soigner avant de combattre." << UI::RESET << endl;
         }
@@ -446,6 +441,7 @@ void Game::showMainMenu() {
             startRandomBattle();
         }
         break;
+    case 2: showBestiary(); break;                                                // ← maintenant bestiaire
     case 3: showStats(); break;
     case 4: showItems(); break;
     case 5:
@@ -460,22 +456,17 @@ void Game::showMainMenu() {
 #pragma region Lancement_du_jeu
 void Game::start() {
     srand(static_cast<unsigned>(time(nullptr)));
-
     cout << UI::BRIGHT_GREEN << "======================================" << UI::RESET << endl;
     cout << UI::BRIGHT_GREEN << " BIENVENUE DANS JUNGLER " << UI::RESET << endl;
     cout << UI::BRIGHT_GREEN << "======================================" << UI::RESET << endl;
-
     string nom;
     cout << UI::BOLD << "Nom de votre exploratrice : " << UI::RESET;
     getline(cin, nom);
     if (nom.empty()) nom = "Exploratrice";
-
     player = Player(nom, 100, 20, 10);
-
     loadItems();
     loadMonsters();
     loadActs();
-
     cout << "\n";
     UI::section("RESUME DE L'EXPEDITION", UI::BRIGHT_CYAN);
     cout << UI::CYAN << "Nom : " << UI::RESET << player.getNom() << endl;
@@ -488,7 +479,6 @@ void Game::start() {
         player.getInventory().afficher_item();
     }
     cout << "\n" << UI::BRIGHT_MAGENTA << "L'aventure commence..." << UI::RESET << "\n";
-
     while (true) {
         if (player.getN_victoire() >= 10) {
             showEnding();

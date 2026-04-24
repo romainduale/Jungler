@@ -26,6 +26,7 @@ public:
     int getN_kill() const;
     int getN_epargne() const;
     Inventory& getInventory();
+    const Inventory& getInventory() const;
     
     
 };

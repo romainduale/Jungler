@@ -56,3 +56,6 @@ int Player::getN_epargne() const{
 Inventory& Player::getInventory(){
     return inventory;
 }
+const Inventory& Player::getInventory() const {
+    return inventory;
+}

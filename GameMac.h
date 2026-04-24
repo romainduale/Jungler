@@ -15,23 +15,28 @@ private:
     Bestiary bestiary;
     ActCatalog actCatalog;
     std::vector<Monster*> monsterPool;
+    std::string saveFilename;
 
-    // Chargement des données
+   
     void loadItems();
     void loadMonsters();
     void loadActs();
 
-    // Menu et affichage
+
     void showMainMenu();
     void showBestiary() const;
     void showStats() const;
     void showItems();
     void showEnding() const;
 
-    // Combat
+
     void startRandomBattle();
     void battle(Monster* monster);
     void displayBattleStatus(Monster* monster) const;
+
+  
+    bool saveGame(const std::string& filename = "save.txt") const;
+    bool loadGame(const std::string& filename = "save.txt");
 
 public:
     Game();

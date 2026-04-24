@@ -9,56 +9,96 @@
 #include <cstdlib>
 #include <ctime>
 #include <limits>
-#include <direct.h>
+#include <unistd.h>
+
+
 
 using namespace std;
 
-#pragma region Couleurs_et_affichage_console
+namespace SaveUtils {
+    vector<string> split(const string& line, char sep) {
+        vector<string> tokens;
+        string token;
+        stringstream ss(line);
+        while (getline(ss, token, sep)) tokens.push_back(token);
+        return tokens;
+    }
+
+    string categoryToString(Category category) {
+        if (category == NORMAL) return "NORMAL";
+        if (category == MINIBOSS) return "MINIBOSS";
+        return "BOSS";
+    }
+
+    Category stringToCategory(const string& value) {
+        if (value == "MINIBOSS") return MINIBOSS;
+        if (value == "BOSS") return BOSS;
+        return NORMAL;
+    }
+}
+
+string makeSaveFilename(const string& name, const string& password) {
+    return "save_" + name + "_" + password + ".txt";
+}
+
+#pragma region Affichage_console_sans_couleurs
 namespace UI {
-    const string RESET = "\033[0m";
-    const string BOLD = "\033[1m";
-    const string RED = "\033[31m";
-    const string GREEN = "\033[32m";
-    const string YELLOW = "\033[33m";
-    const string BLUE = "\033[34m";
-    const string MAGENTA = "\033[35m";
-    const string CYAN = "\033[36m";
-    const string WHITE = "\033[37m";
-    const string BRIGHT_RED = "\033[91m";
-    const string BRIGHT_GREEN = "\033[92m";
-    const string BRIGHT_YELLOW = "\033[93m";
-    const string BRIGHT_BLUE = "\033[94m";
-    const string BRIGHT_MAGENTA = "\033[95m";
-    const string BRIGHT_CYAN = "\033[96m";
+    const string RESET = "";
+    const string BOLD = "";
+    const string RED = "";
+    const string GREEN = "";
+    const string YELLOW = "";
+    const string BLUE = "";
+    const string MAGENTA = "";
+    const string CYAN = "";
+    const string WHITE = "";
+    const string BRIGHT_RED = "";
+    const string BRIGHT_GREEN = "";
+    const string BRIGHT_YELLOW = "";
+    const string BRIGHT_BLUE = "";
+    const string BRIGHT_MAGENTA = "";
+    const string BRIGHT_CYAN = "";
 
     void line(const string& color = WHITE) {
-        cout << color << "=====================================================" << RESET << endl;
+        cout << "=====================================================" << endl;
     }
+
     void smallLine(const string& color = WHITE) {
-        cout << color << "-----------------------------------------------------" << RESET << endl;
+        cout << "-----------------------------------------------------" << endl;
     }
+
     void title(const string& text, const string& color = BRIGHT_GREEN) {
         cout << endl;
-        line(color);
-        cout << color << BOLD << " " << text << RESET << endl;
-        line(color);
+        line();
+        cout << " " << text << endl;
+        line();
     }
+
     void section(const string& text, const string& color = BRIGHT_CYAN) {
         cout << endl;
-        smallLine(color);
-        cout << color << BOLD << " " << text << RESET << endl;
-        smallLine(color);
+        smallLine();
+        cout << " " << text << endl;
+        smallLine();
     }
+
     string makeBar(int value, int maxValue, int size, const string& fullColor, char fullChar = '#', char emptyChar = '-') {
         if (maxValue <= 0) maxValue = 1;
+
         int filled = (value * size) / maxValue;
+
         if (filled < 0) filled = 0;
         if (filled > size) filled = size;
+
         string bar = "[";
-        bar += fullColor;
-        for (int i = 0; i < filled; ++i) bar += fullChar;
-        bar += RESET;
-        for (int i = filled; i < size; ++i) bar += emptyChar;
+
+        for (int i = 0; i < filled; ++i) {
+            bar += fullChar;
+        }
+
+        for (int i = filled; i < size; ++i) {
+            bar += emptyChar;
+        }
+
         bar += "]";
         return bar;
     }
@@ -88,7 +128,7 @@ void Game::loadActs() {
 
 void Game::loadItems() {
     char cwd[1024];
-    if (_getcwd(cwd, sizeof(cwd)) != nullptr) {
+    if (getcwd(cwd, sizeof(cwd)) != nullptr) {
         cout << "\n";
         UI::section("DEBUG - REPERTOIRE DE TRAVAIL", UI::BRIGHT_YELLOW);
         cout << UI::YELLOW << "Repertoire de travail actuel : " << UI::RESET << cwd << endl;
@@ -177,6 +217,139 @@ void Game::loadMonsters() {
     file.close();
     cout << UI::BRIGHT_GREEN << monstresCharges << " monstres charges avec succes depuis monsters.csv !" << UI::RESET << endl;
 }
+#pragma endregion
+
+#pragma region Sauvegarde
+bool Game::saveGame(const string& filename) const {
+    string finalFilename = filename;
+
+    if (finalFilename == "save.txt" && !saveFilename.empty()) {
+        finalFilename = saveFilename;
+    }
+
+    ofstream file(finalFilename);
+    if (!file.is_open()) {
+        cout << UI::BRIGHT_RED << "Impossible de creer le fichier de sauvegarde." << UI::RESET << endl;
+        return false;
+    }
+
+    file << "JUNGLER_SAVE_V1" << endl;
+    file << "PLAYER;"
+         << player.getNom() << ";"
+         << player.getHp() << ";"
+         << player.getMaxHp() << ";"
+         << player.getAtk() << ";"
+         << player.getDef() << ";"
+         << player.getN_victoire() << ";"
+         << player.getN_kill() << ";"
+         << player.getN_epargne() << endl;
+
+    vector<ItemStack> items = player.getInventory().getItems();
+    file << "INVENTORY_COUNT;" << items.size() << endl;
+    for (const ItemStack& stack : items) {
+        Item item = stack.getItem();
+        file << "ITEM;"
+             << item.getNom() << ";"
+             << item.getValeur() << ";"
+             << stack.getQuantite() << endl;
+    }
+
+    vector<BestiaryEntry> entries = bestiary.getBestiaire();
+    file << "BESTIARY_COUNT;" << entries.size() << endl;
+    for (const BestiaryEntry& entry : entries) {
+        file << "BEAST;"
+             << entry.getNom() << ";"
+             << SaveUtils::categoryToString(entry.getCategory()) << ";"
+             << entry.getMaxHp() << ";"
+             << entry.getAtk() << ";"
+             << entry.getDef() << ";"
+             << entry.getResultat() << endl;
+    }
+
+    file.close();
+    cout << "Partie sauvegardee dans " << finalFilename << " !" << endl;
+    return true;
+}
+
+bool Game::loadGame(const string& filename) {
+    ifstream file(filename);
+    if (!file.is_open()) {
+        cout << UI::BRIGHT_YELLOW << "Aucune sauvegarde trouvee." << UI::RESET << endl;
+        return false;
+    }
+
+    string line;
+    getline(file, line);
+    if (line != "JUNGLER_SAVE_V1") {
+        cout << UI::BRIGHT_RED << "Sauvegarde incompatible ou corrompue." << UI::RESET << endl;
+        return false;
+    }
+
+    getline(file, line);
+    vector<string> p = SaveUtils::split(line, ';');
+    if (p.size() != 9 || p[0] != "PLAYER") {
+        cout << UI::BRIGHT_RED << "Sauvegarde invalide : donnees joueur manquantes." << UI::RESET << endl;
+        return false;
+    }
+
+    try {
+        string nom = p[1];
+        int hp = stoi(p[2]);
+        int maxHp = stoi(p[3]);
+        int atk = stoi(p[4]);
+        int def = stoi(p[5]);
+        int victoires = stoi(p[6]);
+        int kills = stoi(p[7]);
+        int epargnes = stoi(p[8]);
+
+        Player loadedPlayer(nom, maxHp, atk, def);
+        if (hp < maxHp) loadedPlayer.subirDegats(maxHp - hp);
+        for (int i = 0; i < victoires; ++i) loadedPlayer.add_victoire();
+        for (int i = 0; i < kills; ++i) loadedPlayer.add_kill();
+        for (int i = 0; i < epargnes; ++i) loadedPlayer.add_epargne();
+
+        getline(file, line);
+        vector<string> invHeader = SaveUtils::split(line, ';');
+        if (invHeader.size() != 2 || invHeader[0] != "INVENTORY_COUNT") return false;
+        int itemCount = stoi(invHeader[1]);
+        for (int i = 0; i < itemCount; ++i) {
+            getline(file, line);
+            vector<string> it = SaveUtils::split(line, ';');
+            if (it.size() != 4 || it[0] != "ITEM") return false;
+            Item item(it[1], HEAL, stoi(it[2]));
+            loadedPlayer.getInventory().ajouter_item(item, stoi(it[3]));
+        }
+
+        player = loadedPlayer;
+
+        getline(file, line);
+        vector<string> bestiaryHeader = SaveUtils::split(line, ';');
+        if (bestiaryHeader.size() != 2 || bestiaryHeader[0] != "BESTIARY_COUNT") return false;
+        int bestiaryCount = stoi(bestiaryHeader[1]);
+        for (int i = 0; i < bestiaryCount; ++i) {
+            getline(file, line);
+            vector<string> b = SaveUtils::split(line, ';');
+            if (b.size() != 7 || b[0] != "BEAST") return false;
+            BestiaryEntry entry(
+                b[1],
+                SaveUtils::stringToCategory(b[2]),
+                stoi(b[3]),
+                stoi(b[4]),
+                stoi(b[5]),
+                b[6]
+            );
+            bestiary.ajouter_monstre(entry);
+        }
+    }
+    catch (...) {
+        cout << UI::BRIGHT_RED << "Erreur pendant le chargement de la sauvegarde." << UI::RESET << endl;
+        return false;
+    }
+
+    cout << UI::BRIGHT_GREEN << "Sauvegarde chargee avec succes !" << UI::RESET << endl;
+    return true;
+}
+
 #pragma endregion
 
 #pragma region Combat
@@ -428,7 +601,8 @@ void Game::showMainMenu() {
     cout << UI::BRIGHT_CYAN << "2. " << UI::RESET << "Bestiaire" << endl;            // ← échangé
     cout << UI::BRIGHT_BLUE << "3. " << UI::RESET << "Statistiques" << endl;
     cout << UI::BRIGHT_YELLOW << "4. " << UI::RESET << "Items" << endl;
-    cout << UI::BRIGHT_MAGENTA << "5. " << UI::RESET << "Quitter" << endl;
+    cout << UI::BRIGHT_GREEN << "5. " << UI::RESET << "Sauvegarder" << endl;
+    cout << UI::BRIGHT_MAGENTA << "6. " << UI::RESET << "Quitter" << endl;
     cout << UI::BOLD << "Votre choix : " << UI::RESET;
     int choix;
     cin >> choix;
@@ -439,12 +613,20 @@ void Game::showMainMenu() {
         }
         else {
             startRandomBattle();
+            saveGame();
         }
         break;
     case 2: showBestiary(); break;                                                // ← maintenant bestiaire
     case 3: showStats(); break;
-    case 4: showItems(); break;
+    case 4:
+        showItems();
+        saveGame();
+        break;
     case 5:
+        saveGame();
+        break;
+    case 6:
+        saveGame();
         cout << UI::BRIGHT_CYAN << "Au revoir, exploratrice !" << UI::RESET << endl;
         exit(0);
     default:
@@ -459,14 +641,50 @@ void Game::start() {
     cout << UI::BRIGHT_GREEN << "======================================" << UI::RESET << endl;
     cout << UI::BRIGHT_GREEN << " BIENVENUE DANS JUNGLER " << UI::RESET << endl;
     cout << UI::BRIGHT_GREEN << "======================================" << UI::RESET << endl;
-    string nom;
-    cout << UI::BOLD << "Nom de votre exploratrice : " << UI::RESET;
-    getline(cin, nom);
-    if (nom.empty()) nom = "Exploratrice";
-    player = Player(nom, 100, 20, 10);
-    loadItems();
     loadMonsters();
     loadActs();
+
+    cout << "1. Nouvelle partie" << endl;
+    cout << "2. Charger la sauvegarde" << endl;
+    cout << "Votre choix : ";
+
+    int choixDepart = 1;
+    cin >> choixDepart;
+    cin.ignore(numeric_limits<streamsize>::max(), '\n');
+
+    bool loaded = false;
+
+    string nom;
+    string password;
+
+    if (choixDepart == 2) {
+        cout << "Nom de l'exploratrice : ";
+        getline(cin, nom);
+
+        cout << "Mot de passe : ";
+        getline(cin, password);
+
+        saveFilename = makeSaveFilename(nom, password);
+        loaded = loadGame(saveFilename);
+    }
+
+    if (!loaded) {
+        cout << "Nom de votre exploratrice : ";
+        getline(cin, nom);
+
+        if (nom.empty()) {
+            nom = "Exploratrice";
+        }
+
+        cout << "Choisissez un mot de passe : ";
+        getline(cin, password);
+
+        saveFilename = makeSaveFilename(nom, password);
+
+        player = Player(nom, 100, 20, 10);
+        loadItems();
+        saveGame(saveFilename);
+    }
     cout << "\n";
     UI::section("RESUME DE L'EXPEDITION", UI::BRIGHT_CYAN);
     cout << UI::CYAN << "Nom : " << UI::RESET << player.getNom() << endl;

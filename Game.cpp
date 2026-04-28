@@ -373,8 +373,8 @@ void Game::battle(Monster* monster) {
         if (action == 1) { // ==================== FIGHT ====================
             cout << UI::BRIGHT_RED << "Vous attaquez !" << UI::RESET << endl;
 
-            // Ton attaque est maintenant aléatoire entre 1 et 60 dégâts max
-            int dmg = rand() % 60 + 1;        // ← MODIFIER ICI pour changer ta puissance d'attaque
+            // Ton attaque est maintenant aléatoire entre 1 et 70 dégâts max
+            int dmg = rand() % 70 + 1;        // ← MODIFIER ICI pour changer ta puissance d'attaque
             monster->subirDegats(dmg);
             cout << UI::RED << "Degats infliges : " << dmg << UI::RESET << endl;
 

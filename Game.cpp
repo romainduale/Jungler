@@ -9,8 +9,7 @@
 #include <cstdlib>
 #include <ctime>
 #include <limits>
-#include <direct.h>   // Windows
-
+#include <direct.h> // Windows
 using namespace std;
 
 namespace SaveUtils {
@@ -60,21 +59,25 @@ namespace UI {
     void line(const string& color = WHITE) {
         cout << color << "=====================================================" << RESET << endl;
     }
+
     void smallLine(const string& color = WHITE) {
         cout << color << "-----------------------------------------------------" << RESET << endl;
     }
+
     void title(const string& text, const string& color = BRIGHT_GREEN) {
         cout << endl;
         line(color);
         cout << color << BOLD << " " << text << RESET << endl;
         line(color);
     }
+
     void section(const string& text, const string& color = BRIGHT_CYAN) {
         cout << endl;
         smallLine(color);
         cout << color << BOLD << " " << text << RESET << endl;
         smallLine(color);
     }
+
     string makeBar(int value, int maxValue, int size, const string& fullColor, char fullChar = '#', char emptyChar = '-') {
         if (maxValue <= 0) maxValue = 1;
         int filled = (value * size) / maxValue;
@@ -93,6 +96,7 @@ namespace UI {
 
 #pragma region Constructeur_et_destructeur
 Game::Game() : player("Inconnu", 50, 10, 5) {}
+
 Game::~Game() {
     for (auto m : monsterPool) delete m;
 }
@@ -104,7 +108,6 @@ bool Game::saveGame(const string& filename) const {
     if (finalFilename == "save.txt" && !saveFilename.empty()) {
         finalFilename = saveFilename;
     }
-
     ofstream file(finalFilename);
     if (!file.is_open()) {
         cout << UI::BRIGHT_RED << "Impossible de creer le fichier de sauvegarde." << UI::RESET << endl;
@@ -224,7 +227,7 @@ void Game::loadActs() {
     actCatalog.addAct(Act("COMPLIMENT", "Vous complimentez la fourrure soyeuse du monstre.", 25));
     actCatalog.addAct(Act("DANSE_TRIBALE", "Vous dansez comme un singe pour amuser le monstre.", 30));
     actCatalog.addAct(Act("OFFRIR_FRUIT", "Vous offrez une mangue juteuse au monstre.", 40));
-    actCatalog.addAct(Act("CHATOUILLER", "Vous chatouillez le monstre avec une feuille geante.", 15));
+    actCatalog.addAct(Act("CHATOULLER", "Vous chatouillez le monstre avec une feuille geante.", 15));
     actCatalog.addAct(Act("INSULTER", "Vous insultez son odeur de jungle humide.", -20));
     actCatalog.addAct(Act("MENACER", "Vous menacez de bruler les lianes autour de lui.", -10));
     actCatalog.addAct(Act("CHANTER", "Vous chantez une melodie apaisante de la jungle.", 20));
@@ -243,24 +246,29 @@ void Game::loadItems() {
         UI::smallLine(UI::BRIGHT_YELLOW);
         cout << endl;
     }
+
     ifstream file("Items.csv");
     if (!file.is_open()) {
         cout << UI::BRIGHT_RED << "ERREUR : Items.csv introuvable." << UI::RESET << endl;
-        cout << UI::RED << "→ Mets le fichier Items.csv exactement dans le dossier ci-dessus !" << UI::RESET << endl;
+        cout << UI::RED << "-> Mets le fichier Items.csv exactement dans le dossier ci-dessus !" << UI::RESET << endl;
         exit(1);
     }
+
     string line;
     int ligneNumero = 0;
     int itemsCharges = 0;
     while (getline(file, line)) {
         ligneNumero++;
         if (line.empty()) continue;
+
         stringstream ss(line);
         vector<string> tokens;
         string token;
         while (getline(ss, token, ';')) tokens.push_back(token);
+
         if (tokens.size() != 4) continue;
         if (tokens[0] == "name") continue;
+
         try {
             string nom = tokens[0];
             int valeur = stoi(tokens[2]);
@@ -280,23 +288,27 @@ void Game::loadItems() {
 void Game::loadMonsters() {
     ifstream file("monsters.csv");
     if (!file.is_open()) {
-        cout << UI::BRIGHT_RED << "ERREUR : fichier monsters.csv introuvable. Arrêt du jeu." << UI::RESET << endl;
+        cout << UI::BRIGHT_RED << "ERREUR : fichier monsters.csv introuvable. Arret du jeu." << UI::RESET << endl;
         exit(1);
     }
+
     string line;
     int ligneNumero = 0;
     int monstresCharges = 0;
     while (getline(file, line)) {
         ligneNumero++;
         if (line.empty() || line[0] == '#') continue;
+
         stringstream ss(line);
         vector<string> tokens;
         string token;
         while (getline(ss, token, ';')) tokens.push_back(token);
+
         if (tokens.size() < 6) {
             cout << UI::BRIGHT_YELLOW << "Ligne " << ligneNumero << " ignoree (trop peu de colonnes)." << UI::RESET << endl;
             continue;
         }
+
         try {
             string catStr = tokens[0];
             Category cat;
@@ -304,15 +316,18 @@ void Game::loadMonsters() {
             else if (catStr == "MINIBOSS") cat = MINIBOSS;
             else if (catStr == "BOSS") cat = BOSS;
             else continue;
+
             string nom = tokens[1];
             int hp = stoi(tokens[2]);
             int atk = stoi(tokens[3]);
             int def = stoi(tokens[4]);
             int mercyGoal = stoi(tokens[5]);
+
             vector<string> actIds;
             for (size_t i = 6; i < tokens.size() && i < 10; ++i) {
                 if (!tokens[i].empty() && tokens[i] != "-") actIds.push_back(tokens[i]);
             }
+
             Monster* m = new Monster(nom, hp, atk, def, cat, mercyGoal, actIds);
             monsterPool.push_back(m);
             monstresCharges++;
@@ -343,27 +358,28 @@ void Game::displayBattleStatus(Monster* monster) const {
 
 void Game::battle(Monster* monster) {
     cout << UI::BRIGHT_MAGENTA << ">> Un combat commence contre " << monster->getNom() << " !" << UI::RESET << endl;
+
     while (player.estEnVie() && monster->estEnVie()) {
         displayBattleStatus(monster);
+
         cout << UI::BRIGHT_YELLOW << "+---------------------------------------------+" << UI::RESET << endl;
-        cout << UI::BRIGHT_YELLOW << "| 1. FIGHT 2. ACT 3. ITEM 4. MERCY |" << UI::RESET << endl;
+        cout << UI::BRIGHT_YELLOW << "| 1. FIGHT  2. ACT  3. ITEM  4. MERCY     |" << UI::RESET << endl;
         cout << UI::BRIGHT_YELLOW << "+---------------------------------------------+" << UI::RESET << endl;
         cout << UI::BOLD << "Votre action : " << UI::RESET;
+
         int action;
         cin >> action;
 
-        if (action == 1) { // FIGHT
+        if (action == 1) { // ==================== FIGHT ====================
             cout << UI::BRIGHT_RED << "Vous attaquez !" << UI::RESET << endl;
-            int dmg = rand() % (monster->getMaxHp() + 1);
-            if (dmg == 0) {
-                cout << UI::YELLOW << "Attaque ratée !" << UI::RESET << endl;
-            }
-            else {
-                monster->subirDegats(dmg);
-                cout << UI::RED << "Degats infliges : " << dmg << UI::RESET << endl;
-            }
+
+            // Ton attaque est maintenant aléatoire entre 1 et 60 dégâts max
+            int dmg = rand() % 60 + 1;        // ← MODIFIER ICI pour changer ta puissance d'attaque
+            monster->subirDegats(dmg);
+            cout << UI::RED << "Degats infliges : " << dmg << UI::RESET << endl;
+
         }
-        else if (action == 2) { // ACT
+        else if (action == 2) { // ==================== ACT ====================
             vector<string> acts = monster->getAvailableActs();
             if (acts.empty()) {
                 cout << UI::YELLOW << "Aucune ACT disponible." << UI::RESET << endl;
@@ -386,7 +402,7 @@ void Game::battle(Monster* monster) {
                 const Act* a = actCatalog.getAct(id);
                 if (a) {
                     cout << UI::BRIGHT_CYAN << a->getTexte() << UI::RESET << endl;
-                    int mercyRandom = -20 + (rand() % 101);
+                    int mercyRandom = -20 + (rand() % 101);   // ← MODIFIER ICI la plage de mercy (-20 à +80)
                     monster->modifier_mercy(mercyRandom);
                 }
                 else {
@@ -394,23 +410,24 @@ void Game::battle(Monster* monster) {
                 }
             }
         }
-        else if (action == 3) { // ITEM
+        else if (action == 3) { // ==================== ITEM ====================
             auto& inv = player.getInventory();
             if (inv.estVide()) {
                 cout << UI::YELLOW << "Inventaire vide." << UI::RESET << endl;
                 continue;
             }
             inv.afficher_item();
-            cout << UI::BOLD << "Numero de l'item a utiliser : " << UI::RESET;
+            cout << UI::BOLD << "Numero de l'item à utiliser : " << UI::RESET;
             int idx;
             cin >> idx;
             player.useItem(idx);
         }
-        else if (action == 4) { // MERCY
+        else if (action == 4) { // ==================== MERCY ====================
             if (monster->est_epargne()) {
                 cout << UI::BRIGHT_GREEN << "Vous epargnez le monstre avec succes !" << UI::RESET << endl;
                 player.add_epargne();
                 player.add_victoire();
+
                 BestiaryEntry entry(monster->getNom(), monster->getCategory(),
                     monster->getMaxHp(), monster->getAtk(),
                     monster->getDef(), "epargne");
@@ -418,28 +435,31 @@ void Game::battle(Monster* monster) {
                 return;
             }
             else {
-                cout << UI::YELLOW << "Le monstre n'est pas encore pret a etre epargne (Mercy : "
-                    << monster->getMercy() << "/" << monster->getMercyGoal() << ")" << UI::RESET << endl;
+                cout << UI::YELLOW
+                    << "Le monstre n'est pas encore pret a etre epargne (Mercy : "
+                    << monster->getMercy() << "/" << monster->getMercyGoal() << ")"
+                    << UI::RESET << endl;
 
-                // Attaque du monstre après échec de MERCY
+                // ==================== ATTAQUE DU MONSTRE APRÈS ÉCHEC DE MERCY ====================
                 cout << UI::BRIGHT_MAGENTA << monster->getNom() << " attaque !" << UI::RESET << endl;
+
                 int dmg = 0;
                 int r = rand() % 100;
-                if (r < 5) {
+
+                if (r < 5) {                    // 5% de chance que le monstre rate complètement
                     cout << UI::YELLOW << "Le monstre rate son attaque !" << UI::RESET << endl;
                 }
-                else if (r < 85) {
-                    dmg = (rand() % 80 + 1) / 2;
-                    if (dmg == 0) dmg = 1;
-                }
                 else {
-                    dmg = rand() % 80 + 1;
+                    // 95% des cas : l'attaque est divisée par 2
+                    dmg = (rand() % 100 + 1) / 2;   // ← MODIFIER ICI la puissance de base du monstre (50)
+                    if (dmg == 0) dmg = 1;         // minimum 1 degat
+                    cout << UI::BRIGHT_RED << "Degats recus : " << dmg << " (moitie)" << UI::RESET << endl;
                 }
+
                 if (dmg > 0) {
                     player.subirDegats(dmg);
-                    cout << UI::BRIGHT_RED << "Degats recus : " << dmg << UI::RESET << endl;
                 }
-                continue;
+                continue;   // On retourne directement au choix du joueur
             }
         }
         else {
@@ -447,10 +467,12 @@ void Game::battle(Monster* monster) {
             continue;
         }
 
+        // Vérification si le monstre est mort après ton action
         if (!monster->estEnVie()) {
             cout << UI::BRIGHT_GREEN << "Le monstre est vaincu !" << UI::RESET << endl;
             player.add_kill();
             player.add_victoire();
+
             BestiaryEntry entry(monster->getNom(), monster->getCategory(),
                 monster->getMaxHp(), monster->getAtk(),
                 monster->getDef(), "tue");
@@ -458,20 +480,18 @@ void Game::battle(Monster* monster) {
             return;
         }
 
-        // Tour du monstre normal
+        // ==================== TOUR NORMAL DU MONSTRE (quand tu ne fais pas MERCY) ====================
         if (monster->estEnVie()) {
             cout << UI::BRIGHT_MAGENTA << monster->getNom() << " attaque !" << UI::RESET << endl;
+
             int dmg = 0;
-            if (rand() % 100 < 10) {
-                dmg = (rand() % 80 + 1);
-                if (dmg == 0) dmg = 1;
-            }
-            else {
+            if (rand() % 100 < 10) {           // 10% de chance de rater (tu peux changer ce %)
                 cout << UI::YELLOW << "Le monstre rate son attaque !" << UI::RESET << endl;
             }
-            if (dmg > 0) {
+            else {
+                dmg = rand() % 50 + 1;         // ← MODIFIER ICI la puissance max du monstre en attaque normale
                 player.subirDegats(dmg);
-                cout << UI::BRIGHT_RED << "Degats recus : " << dmg << UI::RESET << endl;
+                cout << UI::BRIGHT_RED << "Degats reçus : " << dmg << UI::RESET << endl;
             }
         }
 
@@ -563,7 +583,7 @@ void Game::showEnding() const {
     }
     cout << UI::RED << "Tues : " << kills << UI::RESET << endl;
     cout << UI::GREEN << "Epargnes : " << spared << UI::RESET << endl;
-    cout << UI::BRIGHT_CYAN << "Merci d'avoir joue à JUNGLER !" << UI::RESET << endl;
+    cout << UI::BRIGHT_CYAN << "Merci d'avoir joue a JUNGLER !" << UI::RESET << endl;
 }
 #pragma endregion
 
